@@ -17,17 +17,17 @@ https://www.python.org/downloads/release/python-3810/
 
 打开cmd运行
 
-'''sh
+```sh
 pip uninstall nonebot
 pip install nb-cli
-'''
+```
 ### 编辑配置
 
 #### 编辑.env.dev
-'''cfg
+```cfg
 SUPERUSERS=["超级用户qq_1","超级用户qq_2"]
 NICKNAME=["Bot名称1","Bot名称2"]
-'''
+```
 #### 初始化
 
 运行go-cqhttp.exe
