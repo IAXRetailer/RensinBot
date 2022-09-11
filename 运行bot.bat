@@ -1,0 +1,1 @@
+start nb run && start cmd /K "go-cqhttp.exe"
