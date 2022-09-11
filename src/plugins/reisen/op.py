@@ -15,18 +15,33 @@ async def handle(matcher: Matcher, args: Message = CommandArg()):
         await op.finish("正确用法 'op 命令'")
     else:
         keyname=args.extract_plain_text()
-        if keyname == "exec":
-            pass
-        else:
+        if keyname != "exec":
+            op.set_arg(matcher,"exec",None)
+        if keyname != "eval":
+            op.set_arg(matcher,"eval",None)
+        if keyname not in ["exec","eval"]:
             await op.finish("未知命令")
 
-
-@op.got("text",prompt="输入执行文本")
-async def texthandle(text:str=ArgPlainText("text")):
+@op.got("exec",prompt="输入执行文本")
+async def exechandle(text:str=ArgPlainText("exec")):
     if text != None:
         try:
             try:
                 exec(text)
+                await op.finish("执行成功")
+            except Exception as e:
+                if not isinstance(e,FinishedException):
+                    await op.send("执行失败")
+                    await op.finish(traceback.format_exc())
+        except:
+            pass
+@op.got("eval",prompt="输入执行文本")
+async def evalhandle(text:str=ArgPlainText("eval")):
+    if text != None:
+        try:
+            try:
+                result=eval(text)
+                await op.send("执行结果为 %s %s" % (result,type(result)))
                 await op.finish("执行成功")
             except Exception as e:
                 if not isinstance(e,FinishedException):
