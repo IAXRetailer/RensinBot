@@ -4,7 +4,7 @@ from nonebot.matcher import Matcher
 from nonebot.adapters import Message
 from nonebot.params import Arg, CommandArg, ArgPlainText
 from nonebot.log import logger
-from nonebot.adapters.onebot.v11 import MessageSegment
+from nonebot.adapters.onebot.v11 import MessageSegment,MessageEvent
 import aiohttp,re,json,os
 from urllib.parse import quote
 from lxml.html import fromstring
@@ -14,7 +14,7 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 
 thmc=on_command("searchalbum",aliases={"搜索专辑"},rule=to_me(),priority=5)
 @thmc.handle()
-async def tlmchandle(match:Matcher,args:Message=CommandArg()):
+async def tlmchandle(event:MessageEvent,match:Matcher,args:Message=CommandArg()):
     args=args.extract_plain_text()
     if args == "":
         await thmc.finish("正确用法 '搜索专辑 搜索内容'")
@@ -22,7 +22,9 @@ async def tlmchandle(match:Matcher,args:Message=CommandArg()):
     if resp != None:
         result=await format_resp(resp)
         fin=["%s. %s —— %s"%(index,resultn["name"],resultn["artist"]) for index,resultn in zip(range(1,len(result)+1),result)]
-        with open("data/reisen/cache/tlmc.json","w") as f:
+        if not os.path.exists("data/reisen/cache/%s"%event.get_session_id()):
+            os.mkdir("data/reisen/cache/%s"%event.get_session_id())
+        with open("data/reisen/cache/%s/tlmc.json"%event.get_session_id(),"w") as f:
             f.write(json.dumps({"result":result},indent=4))
         await thmc.send("\n".join(fin))
         await thmc.finish("使用'获取专辑 序号'来获取专辑吧")
@@ -31,29 +33,28 @@ async def tlmchandle(match:Matcher,args:Message=CommandArg()):
 
 getabm=on_command("getalbum",aliases={"获取专辑"},rule=to_me(),priority=5)
 @getabm.handle()
-async def gabmhandle(match:Matcher,args:Message=CommandArg()):
-    if not os.path.exists("data/reisen/cache/tlmc.json"):
+async def gabmhandle(event:MessageEvent,match:Matcher,args:Message=CommandArg()):
+    if not os.path.exists("data/reisen/cache/%s/tlmc.json"%event.get_session_id()):
         await getabm.finish("缓存中暂无任何专辑,使用'获取专辑'来获取")
     else:
-        with open("data/reisen/cache/tlmc.json","r") as f:
+        with open("data/reisen/cache/%s/tlmc.json"%event.get_session_id(),"r") as f:
             resdict=json.loads(f.read())["result"]
         try:
             args=int(args.extract_plain_text())
             result=resdict[args-1]
         except:
             await getabm.finish("序号错误")
-        coverurl="https://doujinstyle.com/covers/%s.jpg"%result["id"]
         download=await get_redirect_url(result["id"])
         fin="专辑名称:%s\n专辑作者:%s\n上传地址:%s\n下载地址:%s\n" % (result["name"],result["artist"],result["url"],quote(download).replace("%3A",":",1))
-        await getabm.finish(fin+MessageSegment.image(file=coverurl))
+        await getabm.finish(fin+MessageSegment.image(file=result["cover"]))
         
 nowabm=on_command("nowalbum",aliases={"当前专辑"},rule=to_me(),priority=5)
 @nowabm.handle()
-async def nabmhandle(match:Matcher,args:Message=CommandArg()):
-    if not os.path.exists("data/reisen/cache/tlmc.json"):
+async def nabmhandle(event:MessageEvent,match:Matcher,args:Message=CommandArg()):
+    if not os.path.exists("data/reisen/cache/%s/tlmc.json"%event.get_session_id()):
         await nowabm.finish("缓存中暂无任何专辑,使用'获取专辑'来获取")
     else:
-        with open("data/reisen/cache/tlmc.json","r") as f:
+        with open("data/reisen/cache/%s/tlmc.json"%event.get_session_id(),"r") as f:
             resdict=json.loads(f.read())["result"]
         fin=["%s. %s —— %s"%(index,resultn["name"],resultn["artist"]) for index,resultn in zip(range(1,len(resdict)+1),resdict)]
         await nowabm.finish(fin)
@@ -74,12 +75,17 @@ async def format_resp(html:str):
             name=gridbox.xpath("./div[2]/a[1]/span/text()")[0]
             artist=gridbox.xpath("./div[2]/a[2]/span/text()")[0]
             identify=re.findall(r"id=\d+",url)[0].replace("id=","")
-            
+            cover=re.findall(r"/\d+.*g",gridbox.xpath("./div[1]/div/@style")[0])
+            if cover == []:
+                cover="/default_cover.png"
+            else:
+                cover=cover[0]
             result.append({
                 "url":url,
                 "name":name,
                 "artist":artist,
-                "id":identify
+                "id":identify,
+                "cover":thmc_site+"/thumbs"+cover
             })
     return result
 
