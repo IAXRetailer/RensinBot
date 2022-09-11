@@ -45,7 +45,7 @@ async def gabmhandle(event:MessageEvent,match:Matcher,args:Message=CommandArg())
         except:
             await getabm.finish("序号错误")
         download=await get_redirect_url(result["id"])
-        fin="专辑名称:%s\n专辑作者:%s\n上传地址:%s\n下载地址:%s\n" % (result["name"],result["artist"],result["url"],quote(download).replace("%3A",":",1))
+        fin="专辑名称：%s\n专辑作者：%s\n上传地址：%s\n下载地址：%s\n" % (result["name"],result["artist"],result["url"],quote(download).replace("%3A",":",1))
         await getabm.finish(fin+MessageSegment.image(file=result["cover"]))
         
 nowabm=on_command("nowalbum",aliases={"当前专辑"},rule=to_me(),priority=5)
@@ -94,3 +94,13 @@ async def get_redirect_url(id):
     async with aiohttp.ClientSession() as Session:
         async with Session.post(thmc_site,headers=headers,data=data,allow_redirects=False) as resp:
             return resp.headers.get('Location')
+        
+        
+touhouapi="https://img.paulzzh.tech/touhou/random"
+randomtouhou=on_command("randomtouhou",aliases={"随机东方",},rule=to_me())
+@randomtouhou.handle()
+async def rthih(match:Matcher,Args:Message=CommandArg()):
+    async with aiohttp.ClientSession() as Session:
+        async with Session.get(touhouapi,headers=headers,allow_redirects=False) as resp:
+            await randomtouhou.finish(MessageSegment.image(file=resp.headers.get('Location')))
+        

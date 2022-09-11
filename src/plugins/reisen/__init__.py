@@ -11,7 +11,7 @@ if not os.path.exists("data/reisen/cache"):
 if not os.path.exists("data/reisen/teach"):
     os.mkdir("data/reisen/teach")
 
-from . import hello,op,helpboard,teach,touhou
+from . import hello,op,helpboard,teach,touhou,setu
 
 '''
 weather = on_command("weather", rule=to_me(), aliases={"天气", "天气预报"}, priority=5)
