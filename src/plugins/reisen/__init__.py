@@ -1,11 +1,17 @@
 from nonebot import get_driver
-from nonebot import on_command
 from .config import Config
 
 global_config = get_driver().config
 config = Config.parse_obj(global_config)
+import os
+if not os.path.exists("data/reisen"):
+    os.mkdir("data/reisen")
+if not os.path.exists("data/reisen/cache"):
+    os.mkdir("data/reisen/cache")
+if not os.path.exists("data/reisen/teach"):
+    os.mkdir("data/reisen/teach")
 
-from . import hello,op
+from . import hello,op,helpboard,teach
 
 '''
 weather = on_command("weather", rule=to_me(), aliases={"天气", "天气预报"}, priority=5)
