@@ -15,11 +15,12 @@ https://www.python.org/downloads/release/python-3810/
 安装时候记得勾选把python加入环境变量，否则可能会出现意料之外的错误
 #### 安装依赖
 
-打开cmd运行
+运行安装依赖.bat或打开cmd运行以下命令
 
 ```sh
 pip uninstall nonebot
 pip install nb-cli
+pip install -r requirement.txt
 ```
 ### 编辑配置
 
