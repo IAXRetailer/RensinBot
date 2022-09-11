@@ -35,7 +35,7 @@ async def addword(sessionid,teachword,teachcontain):
     with open("data/reisen/teach/%s.json"%sessionid,"w") as f:
         f.write(json.dumps(findict,indent=4))
 
-replyteach=on_message(rule=to_me(),priority=6)
+replyteach=on_message(priority=6)
 @replyteach.handle()
 async def msghandle(event:MessageEvent):
     sessionid=event.get_session_id()
