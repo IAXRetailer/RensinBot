@@ -9,9 +9,9 @@ say=on_command("say", rule=to_me(), aliases={"说",}, priority=5)
 
 @say.handle()
 async def handle(matcher: Matcher, args: Message = CommandArg()):
-    contain=args.extract_plain_text()
-    if contain == "":
-        await say.finish("请输入 \"说 你要BOT说的话\"")
-    else:
-        await say.finish(contain)
+    await say.finish(args)
 
+textconv=on_command("textconv",rule=to_me(),aliases={"文本转换"},priority=5)
+@textconv.handle()
+async def handle(matcher:Matcher,args:Message=CommandArg()):
+    await textconv.finish(str(args))

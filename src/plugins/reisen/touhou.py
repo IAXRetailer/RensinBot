@@ -97,10 +97,16 @@ async def get_redirect_url(id):
         
         
 touhouapi="https://img.paulzzh.tech/touhou/random"
+LOLICONAPI="https://api.lolicon.app/setu/v2"
 randomtouhou=on_command("randomtouhou",aliases={"随机东方",},rule=to_me())
-@randomtouhou.handle()
+#@randomtouhou.handle()
 async def rthih(match:Matcher,Args:Message=CommandArg()):
     async with aiohttp.ClientSession() as Session:
         async with Session.get(touhouapi,headers=headers,allow_redirects=False) as resp:
             await randomtouhou.finish(MessageSegment.image(file=resp.headers.get('Location')))
-        
+
+@randomtouhou.handle()
+async def rthihllc(match:Matcher,Args:Message=CommandArg()):
+    async with aiohttp.ClientSession() as Session:
+        async with Session.get("%s?r18=0&tag=東方Project|touhou|东方project&size=regular"%LOLICONAPI,headers=headers,allow_redirects=False) as resp:
+            await randomtouhou.finish(MessageSegment.image(file=json.loads(await resp.text())["data"][0]["urls"]["regular"]))

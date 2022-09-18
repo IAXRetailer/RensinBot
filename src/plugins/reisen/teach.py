@@ -1,5 +1,5 @@
-from gettext import find
 import os,json
+import re
 from nonebot import on_command,on_message
 from nonebot.rule import to_me
 from nonebot.matcher import Matcher
@@ -7,7 +7,9 @@ from nonebot.adapters import Message
 from nonebot.params import Arg, CommandArg, ArgPlainText
 from nonebot.log import logger
 from nonebot.permission import SUPERUSER
-from nonebot.adapters.onebot.v11 import MessageEvent
+from nonebot.adapters.onebot.v11 import MessageEvent,MessageSegment
+from . import utils
+
 teach=on_command("teach", rule=to_me(), aliases={"教","添加关键词"}, priority=5)
 
 @teach.handle()
@@ -20,7 +22,7 @@ async def handle(matcher: Matcher,event:MessageEvent,args: Message = CommandArg(
         await teach.finish("正确用法: 教 '你需要铃仙回复的词'")
 
 @teach.got("reply","您想要铃仙回复什么呢?")
-async def getreply(matcher:Matcher,reply:str = ArgPlainText("reply")):
+async def getreply(matcher:Matcher,reply = Arg("reply")):
     await addword(matcher.get_arg("session"),matcher.get_arg("teachword"),reply)
     await teach.finish("添加成功")
     
@@ -31,7 +33,7 @@ async def addword(sessionid,teachword,teachcontain):
             f.write(r"{}")
     with open("data/reisen/teach/%s.json"%sessionid,"r") as f:
         findict=json.loads(f.read())
-        findict.update({teachword:teachcontain})
+        findict.update({teachword:str(teachcontain)})
     with open("data/reisen/teach/%s.json"%sessionid,"w") as f:
         f.write(json.dumps(findict,indent=4))
 
@@ -43,7 +45,9 @@ async def msghandle(event:MessageEvent):
         with open("data/reisen/teach/%s.json"%sessionid,"r") as f:
             findict=json.loads(f.read())
         if event.get_message().extract_plain_text() in findict.keys():
-            await replyteach.finish(findict[event.get_message().extract_plain_text()])
+            fin=findict[event.get_message().extract_plain_text()]
+            fin=utils.convImg(fin)
+            await replyteach.finish(fin)
     except:
         pass
 

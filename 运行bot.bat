@@ -1,1 +1,2 @@
-start nb run && start cmd /K "go-cqhttp.exe"
+start cmd /K "go-cqhttp.exe"
+nb run

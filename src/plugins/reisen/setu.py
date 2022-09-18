@@ -6,6 +6,8 @@ from nonebot.params import Arg, CommandArg, ArgPlainText
 from nonebot.log import logger
 #import pixivpy_async
 
+#API=
+
 setu=on_command("setu", rule=to_me(), aliases={"色图",}, priority=5)
 #pixivpy_async.
 
